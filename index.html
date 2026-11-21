@@ -1,0 +1,1418 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Evelin ✨ Mural Urbano & Experiencia Interactiva</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Great+Vibes&family=Montserrat:wght@300;400;500;600;700&family=Permanent+Marker&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --pink-neon: #ff2a85;
+            --cyan-neon: #00e5ff;
+            --gold-neon: #ffca28;
+            --purple-neon: #ab47bc;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            min-height: 100dvh;
+            background-color: #141210;
+            color: #f5f5f4;
+            overflow-x: clip;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .graffiti-calligraphy {
+            font-family: 'Great Vibes', 'Alex Brush', cursive;
+        }
+
+        .street-tag {
+            font-family: 'Permanent Marker', cursive;
+        }
+
+        /* =========================================================
+           GLASSMORPHISM URBANO LIMPIO
+           ========================================================= */
+        .urban-dock {
+            background: rgba(18, 17, 20, 0.84);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75);
+        }
+
+        .urban-panel {
+            background: rgba(20, 19, 24, 0.92);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.85);
+            max-height: calc(100dvh - 8.5rem);
+            overflow-y: auto;
+        }
+
+        /* Escala fluida del mural para encajar en cualquier orientación y altura de pantalla */
+        .mural-frame-shell {
+            width: min(100vw - 0.75rem, 760px, calc((100dvh - 7.75rem) * 0.6164));
+            max-width: 760px;
+            aspect-ratio: 900 / 1460;
+            will-change: transform;
+        }
+
+        @media (min-width: 640px) {
+            .mural-frame-shell {
+                width: min(100vw - 2rem, 760px, calc((100dvh - 8.5rem) * 0.6164));
+            }
+        }
+
+        /* =========================================================
+           ANIMACIONES DEL MURAL Y AMBIENTE (60 FPS GPU)
+           ========================================================= */
+        @keyframes muralEntrance {
+            0% { opacity: 0; transform: scale(0.97); filter: blur(4px); }
+            100% { opacity: 1; transform: scale(1); filter: blur(0); }
+        }
+        .animate-mural-entrance {
+            animation: muralEntrance 1.1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        @keyframes botanicalSway {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.012) rotate(0.45deg); }
+        }
+        .botanical-sway {
+            transform-origin: 450px 620px;
+            animation: botanicalSway 8s ease-in-out infinite;
+        }
+
+        @keyframes crownHover {
+            0%, 100% { transform: translateY(0px) rotate(-4deg); }
+            50% { transform: translateY(-4px) rotate(-1.5deg); }
+        }
+        .crown-hover {
+            transform-origin: 450px 350px;
+            animation: crownHover 4.5s ease-in-out infinite;
+        }
+
+        @keyframes butterflyDance {
+            0%, 100% { transform: translate(562px, 315px) scale(1) rotate(14deg); }
+            50% { transform: translate(567px, 308px) scale(0.88, 1.06) rotate(22deg); }
+        }
+        .butterfly-dance {
+            animation: butterflyDance 2.6s ease-in-out infinite;
+        }
+
+        @keyframes paintDrip {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(1.12); }
+        }
+        .drip-slow-1 { transform-origin: top; animation: paintDrip 5.5s ease-in-out infinite; }
+        .drip-slow-2 { transform-origin: top; animation: paintDrip 6.8s ease-in-out infinite 1.5s; }
+        .drip-slow-3 { transform-origin: top; animation: paintDrip 6.1s ease-in-out infinite 2.8s; }
+
+        @keyframes heartPulse {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.18); }
+            50% { transform: scale(1); }
+            75% { transform: scale(1.12); }
+        }
+        .heart-pulse {
+            transform-origin: 558px 526px;
+            animation: heartPulse 3.2s ease-in-out infinite;
+        }
+
+        /* Brisa suave en las hojas secas de la acera */
+        @keyframes leafBreeze {
+            0%, 100% { transform: translateX(0px) rotate(0deg); }
+            50% { transform: translateX(6px) rotate(4deg); }
+        }
+        .leaf-breeze-1 { animation: leafBreeze 5.2s ease-in-out infinite; }
+        .leaf-breeze-2 { animation: leafBreeze 6.4s ease-in-out infinite 1.8s; }
+
+        /* Modo Noche: Brillo Neón en el Mural */
+        .night-mode-active .neon-glow-layer {
+            filter: drop-shadow(0 0 12px rgba(255, 42, 133, 0.55)) drop-shadow(0 0 24px rgba(0, 229, 255, 0.35));
+            transition: filter 0.8s ease;
+        }
+        .neon-glow-layer {
+            transition: filter 0.8s ease;
+        }
+
+        /* Ecualizador de audio */
+        @keyframes eqWave {
+            0%, 100% { height: 20%; }
+            50% { height: 95%; }
+        }
+        .eq-playing .bar-1 { animation: eqWave 0.65s ease-in-out infinite; }
+        .eq-playing .bar-2 { animation: eqWave 0.45s ease-in-out infinite 0.12s; }
+        .eq-playing .bar-3 { animation: eqWave 0.80s ease-in-out infinite 0.25s; }
+        .eq-playing .bar-4 { animation: eqWave 0.55s ease-in-out infinite 0.08s; }
+
+        /* Pins de Exploración */
+        @keyframes pinRipple {
+            0% { transform: scale(0.9); opacity: 0.9; }
+            70% { transform: scale(2.1); opacity: 0; }
+            100% { transform: scale(2.1); opacity: 0; }
+        }
+        .pin-ring {
+            animation: pinRipple 2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+        }
+
+        /* Partículas flotantes (luciérnagas y pétalos) */
+        @keyframes floatUpFade {
+            0% { transform: translateY(0) scale(0.6) rotate(0deg); opacity: 0; }
+            20% { opacity: 0.95; }
+            85% { opacity: 0.8; }
+            100% { transform: translateY(-140px) scale(1.1) rotate(140deg); opacity: 0; }
+        }
+        .floating-particle {
+            position: fixed;
+            pointer-events: none;
+            animation: floatUpFade 4.5s ease-out forwards;
+        }
+    </style>
+</head>
+<body id="appBody" class="min-h-screen w-full flex flex-col items-center justify-center relative bg-stone-950">
+
+    <!-- =========================================================
+         BARRA SUPERIOR MINIMALISTA: TÍTULO DISCRETO + MODO DÍA/NOCHE
+         ========================================================= -->
+    <header class="fixed top-0 left-0 right-0 z-30 max-w-4xl mx-auto px-2.5 sm:px-5 pt-[max(0.625rem,env(safe-area-inset-top))] flex items-center justify-between gap-2 pointer-events-none">
+        <!-- Badge de estado actual -->
+        <div class="pointer-events-auto urban-dock px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-full flex items-center gap-2 text-[11px] sm:text-sm min-w-0">
+            <span id="statusDot" class="w-2 h-2 sm:w-2.5 sm:h-2.5 shrink-0 rounded-full bg-amber-400 shadow-[0_0_8px_#fbbf24]"></span>
+            <span id="statusText" class="font-medium text-stone-200 tracking-wide truncate">Mural de Evelin • Luz de Día</span>
+        </div>
+
+        <!-- Interruptor Día / Noche de Callejón -->
+        <button id="themeToggleBtn" aria-label="Cambiar entre Día y Noche" class="pointer-events-auto urban-dock px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-full flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-sm font-semibold text-stone-100 hover:border-pink-400/50 active:scale-95 transition-all cursor-pointer shrink-0">
+            <span id="themeIcon" class="text-sm sm:text-base">🌙</span>
+            <span id="themeLabel">Noche Neón</span>
+        </button>
+    </header>
+
+    <!-- =========================================================
+         ESCENARIO PRINCIPAL DEL MURO DE CONCRETO Y ARTE SVG
+         ========================================================= -->
+    <main id="muralViewport" class="relative w-full min-h-screen min-h-[100dvh] flex items-center justify-center overflow-hidden pt-[calc(3.5rem+env(safe-area-inset-top))] pb-[calc(5rem+env(safe-area-inset-bottom))] px-1.5 sm:px-4">
+        
+        <!-- Contenedor con Parallax suave y adaptación fluida -->
+        <div id="parallaxContainer" class="mural-frame-shell relative mx-auto shadow-[0_0_100px_rgba(0,0,0,0.98)]">
+            
+            <!-- SVG MAESTRO DE ALTÍSIMA DEFINICIÓN (900 x 1460) -->
+            <svg id="muralSvg" viewBox="0 0 900 1460" class="w-full h-full block select-none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <!-- 1. Textura Fotorrealista de Concreto Desgastado (Multi-frecuencia) -->
+                    <filter id="concreteRealism" x="0%" y="0%" width="100%" height="100%">
+                        <feTurbulence type="fractalNoise" baseFrequency="0.028" numOctaves="5" seed="19" result="fineGrain"/>
+                        <feColorMatrix type="matrix" values="
+                            0.26 0 0 0 0.55
+                            0 0.25 0 0 0.52
+                            0 0 0.22 0 0.47
+                            0 0 0 1 0" in="fineGrain" result="concreteBase"/>
+                        <feTurbulence type="turbulence" baseFrequency="0.007" numOctaves="4" seed="53" result="weatherPatches"/>
+                        <feColorMatrix type="matrix" values="
+                            0.22 0 0 0 0.08
+                            0 0.20 0 0 0.07
+                            0 0 0.17 0 0.05
+                            0 0 0 0.46 0" in="weatherPatches" result="darkStains"/>
+                        <feBlend mode="multiply" in="concreteBase" in2="darkStains" result="finalConcrete"/>
+                    </filter>
+
+                    <!-- 2. Rugosidad de pintura absorbida por el muro -->
+                    <filter id="paintOnWall" x="-6%" y="-6%" width="112%" height="112%">
+                        <feTurbulence type="fractalNoise" baseFrequency="0.065" numOctaves="4" seed="9" result="wallPores"/>
+                        <feDisplacementMap in="SourceGraphic" in2="wallPores" scale="2.8" xChannelSelector="R" yChannelSelector="G"/>
+                    </filter>
+
+                    <!-- 3. Sombra proyectada de las varillas oxidadas dentro del hueco -->
+                    <filter id="rebarShadow" x="-15%" y="-15%" width="130%" height="130%">
+                        <feDropShadow dx="4" dy="6" stdDeviation="3.5" flood-color="#0d0a08" flood-opacity="0.85"/>
+                    </filter>
+
+                    <!-- 4. Desenfoques para aerosol y tags antiguos -->
+                    <filter id="sprayGlowBlur" x="-25%" y="-25%" width="150%" height="150%">
+                        <feGaussianBlur stdDeviation="16"/>
+                    </filter>
+                    <filter id="oldTagBlur" x="-10%" y="-10%" width="120%" height="120%">
+                        <feGaussianBlur stdDeviation="1.3"/>
+                    </filter>
+
+                    <!-- 5. Degradado Maestro del Nombre "Evelin" -->
+                    <linearGradient id="evelinSignatureGrad" x1="8%" y1="30%" x2="94%" y2="68%">
+                        <stop offset="0%" stop-color="#c2185b"/>
+                        <stop offset="22%" stop-color="#ff2a85"/>
+                        <stop offset="42%" stop-color="#00acc1"/>
+                        <stop offset="60%" stop-color="#00e5ff"/>
+                        <stop offset="78%" stop-color="#ffca28"/>
+                        <stop offset="92%" stop-color="#26a69a"/>
+                        <stop offset="100%" stop-color="#ffe082"/>
+                    </linearGradient>
+
+                    <!-- 6. Degradado del Lazo Infinito -->
+                    <linearGradient id="infinityGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#e91e63"/>
+                        <stop offset="36%" stop-color="#8e24aa"/>
+                        <stop offset="66%" stop-color="#00acc1"/>
+                        <stop offset="100%" stop-color="#ffca28"/>
+                    </linearGradient>
+
+                    <!-- 7. Degradados Botánicos -->
+                    <linearGradient id="leafEmerald" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#26a69a"/>
+                        <stop offset="100%" stop-color="#43a047"/>
+                    </linearGradient>
+                    <linearGradient id="leafVioletCyan" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#9c27b0"/>
+                        <stop offset="100%" stop-color="#00bcd4"/>
+                    </linearGradient>
+                    <linearGradient id="flowerMagenta" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#f48fb1"/>
+                        <stop offset="50%" stop-color="#ec407a"/>
+                        <stop offset="100%" stop-color="#ad1457"/>
+                    </linearGradient>
+
+                    <!-- 8. Tramas Geométricas Internas (Laberinto, Rayas y Puntos) -->
+                    <pattern id="geoChevron" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="rotate(28)">
+                        <rect width="16" height="16" fill="#133d3a"/>
+                        <path d="M 0 8 L 8 0 L 16 8 M 0 16 L 8 8 L 16 16" fill="none" stroke="#80cbc4" stroke-width="2.1"/>
+                    </pattern>
+                    <pattern id="geoStripesDots" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(-22)">
+                        <rect width="14" height="14" fill="#3b1261"/>
+                        <line x1="0" y1="7" x2="14" y2="7" stroke="#ce93d8" stroke-width="2"/>
+                        <circle cx="7" cy="3" r="1.4" fill="#00e5ff"/>
+                    </pattern>
+
+                    <!-- 9. Cavidad del Concreto Roto y Ladrillo -->
+                    <radialGradient id="cavityDepth" cx="45%" cy="45%" r="58%">
+                        <stop offset="0%" stop-color="#5a3b2e"/>
+                        <stop offset="65%" stop-color="#3b2b23"/>
+                        <stop offset="100%" stop-color="#1a1410"/>
+                    </radialGradient>
+
+                    <!-- 10. Iluminación Nocturna de Farola de Callejón -->
+                    <radialGradient id="streetlampWarmGlow" cx="50%" cy="38%" r="62%">
+                        <stop offset="0%" stop-color="#ffd54f" stop-opacity="0.16"/>
+                        <stop offset="52%" stop-color="#1a237e" stop-opacity="0.48"/>
+                        <stop offset="100%" stop-color="#090a0f" stop-opacity="0.86"/>
+                    </radialGradient>
+
+                    <!-- 11. Viñeta Natural de Día -->
+                    <radialGradient id="dayVignette" cx="50%" cy="48%" r="66%">
+                        <stop offset="62%" stop-color="#000000" stop-opacity="0"/>
+                        <stop offset="100%" stop-color="#14110e" stop-opacity="0.58"/>
+                    </radialGradient>
+                </defs>
+
+                <!-- =========================================================
+                     CAPA 1: MURO DE CONCRETO FOTORREALISTA
+                     ========================================================= -->
+                <rect x="0" y="0" width="900" height="1280" fill="#9c948b"/>
+                <rect x="0" y="0" width="900" height="1280" filter="url(#concreteRealism)" opacity="0.94"/>
+
+                <!-- Manchas de humedad, salitre y pátina del tiempo -->
+                <ellipse cx="145" cy="390" rx="185" ry="255" fill="#75695b" opacity="0.28" filter="url(#sprayGlowBlur)"/>
+                <ellipse cx="775" cy="245" rx="195" ry="235" fill="#59524a" opacity="0.34" filter="url(#sprayGlowBlur)"/>
+                <ellipse cx="455" cy="635" rx="345" ry="310" fill="#cdc5ba" opacity="0.26" filter="url(#sprayGlowBlur)"/>
+                <ellipse cx="215" cy="1095" rx="265" ry="175" fill="#474038" opacity="0.40" filter="url(#sprayGlowBlur)"/>
+                <ellipse cx="715" cy="1135" rx="235" ry="165" fill="#504940" opacity="0.36" filter="url(#sprayGlowBlur)"/>
+
+                <!-- =========================================================
+                     CAPA 2: TAGS CALLEJEROS ANTIGUOS DIFUMINADOS
+                     ========================================================= -->
+                <g opacity="0.48" filter="url(#oldTagBlur)">
+                    <!-- Tag "NOOR" con halo arriba del hueco -->
+                    <g transform="translate(335, 68) rotate(-4)">
+                        <ellipse cx="34" cy="-28" rx="24" ry="7.5" fill="none" stroke="#6d5338" stroke-width="3.2"/>
+                        <text x="0" y="0" class="street-tag" font-size="35" fill="#6d5338" letter-spacing="2">NOOR</text>
+                    </g>
+                    <!-- Trazos azules, rosas y negros desgastados -->
+                    <path d="M 645 32 Q 708 92 782 46 T 875 96" fill="none" stroke="#1b3b4e" stroke-width="16" stroke-linecap="round" opacity="0.65"/>
+                    <path d="M 672 88 L 742 22 L 795 112" fill="none" stroke="#182026" stroke-width="11" stroke-linecap="round" opacity="0.55"/>
+                    <path d="M 28 52 Q 65 25 82 68 T 35 95" fill="none" stroke="#ad1457" stroke-width="7" stroke-linecap="round" opacity="0.42"/>
+                    <path d="M 32 325 L 148 292 L 96 398 L 212 358" fill="none" stroke="#285266" stroke-width="12" stroke-linecap="round" opacity="0.55"/>
+                    <path d="M 182 1055 L 292 1025 L 262 1145 L 422 1105" fill="none" stroke="#214659" stroke-width="18" stroke-linecap="round" opacity="0.6"/>
+                    <path d="M 58 1022 L 152 1022 M 58 1048 L 142 1048 M 86 1002 L 86 1078" fill="none" stroke="#eceff1" stroke-width="4" opacity="0.55"/>
+                    <text x="812" y="458" class="street-tag" font-size="38" fill="#1976d2" opacity="0.42" transform="rotate(-12, 812, 458)">24</text>
+                </g>
+
+                <!-- =========================================================
+                     CAPA 3: HUECO CON LADRILLO EXPUESTO Y MALLA DE VARILLAS OXIDADAS
+                     ========================================================= -->
+                <g transform="translate(0, 6)">
+                    <!-- Cavidad profunda -->
+                    <path d="M 65 130 L 135 105 L 235 112 L 345 102 L 445 132 L 425 162 L 365 182 L 325 225 L 245 258 L 195 318 L 155 312 L 132 232 L 82 178 Z" 
+                          fill="url(#cavityDepth)" stroke="#241e19" stroke-width="4.5"/>
+                    
+                    <!-- Bordes de cemento astillado con luz y sombra -->
+                    <path d="M 65 130 L 135 105 L 235 112 L 345 102 L 445 132" fill="none" stroke="#cbc3b8" stroke-width="4.5" opacity="0.8"/>
+                    <path d="M 445 132 L 425 162 L 365 182 L 325 225 L 245 258 L 195 318 L 155 312 L 132 232 L 82 178 L 65 130" 
+                          fill="none" stroke="#14100d" stroke-width="5.5"/>
+
+                    <clipPath id="cavityClip">
+                        <path d="M 72 133 L 138 110 L 235 116 L 342 108 L 435 134 L 418 158 L 360 178 L 320 220 L 242 252 L 192 310 L 158 305 L 136 228 L 86 175 Z"/>
+                    </clipPath>
+                    <g clip-path="url(#cavityClip)">
+                        <!-- Fondo de ladrillo rojizo desgastado -->
+                        <rect x="60" y="95" width="390" height="230" fill="#6b3e31" filter="url(#paintOnWall)"/>
+                        <g stroke="#3e221a" stroke-width="3" opacity="0.65">
+                            <line x1="65" y1="130" x2="440" y2="130"/>
+                            <line x1="65" y1="162" x2="440" y2="162"/>
+                            <line x1="65" y1="194" x2="440" y2="194"/>
+                            <line x1="65" y1="226" x2="440" y2="226"/>
+                            <line x1="65" y1="258" x2="440" y2="258"/>
+                            <line x1="145" y1="100" x2="145" y2="130"/>
+                            <line x1="245" y1="100" x2="245" y2="130"/>
+                            <line x1="345" y1="100" x2="345" y2="130"/>
+                            <line x1="195" y1="130" x2="195" y2="162"/>
+                            <line x1="295" y1="130" x2="295" y2="162"/>
+                            <line x1="150" y1="162" x2="150" y2="194"/>
+                            <line x1="250" y1="162" x2="250" y2="194"/>
+                        </g>
+
+                        <!-- Malla de varillas oxidadas con sombra proyectada sobre el ladrillo -->
+                        <g filter="url(#rebarShadow)">
+                            <g stroke="#291a12" stroke-width="5.5">
+                                <line x1="115" y1="100" x2="115" y2="320"/>
+                                <line x1="165" y1="100" x2="165" y2="320"/>
+                                <line x1="215" y1="100" x2="215" y2="320"/>
+                                <line x1="265" y1="100" x2="265" y2="320"/>
+                                <line x1="315" y1="100" x2="315" y2="320"/>
+                                <line x1="365" y1="100" x2="365" y2="320"/>
+                                <line x1="415" y1="100" x2="415" y2="320"/>
+                                <line x1="65" y1="138" x2="445" y2="138"/>
+                                <line x1="65" y1="184" x2="445" y2="184"/>
+                                <line x1="65" y1="230" x2="445" y2="230"/>
+                                <line x1="65" y1="276" x2="445" y2="276"/>
+                            </g>
+                            <!-- Reflejo óxido cobrizo -->
+                            <g stroke="#8d553a" stroke-width="1.6" opacity="0.85">
+                                <line x1="114" y1="100" x2="114" y2="320"/>
+                                <line x1="164" y1="100" x2="164" y2="320"/>
+                                <line x1="214" y1="100" x2="214" y2="320"/>
+                                <line x1="264" y1="100" x2="264" y2="320"/>
+                                <line x1="314" y1="100" x2="314" y2="320"/>
+                                <line x1="364" y1="100" x2="364" y2="320"/>
+                            </g>
+                        </g>
+                    </g>
+
+                    <!-- Grietas finas en el concreto -->
+                    <path d="M 445 132 L 542 142 L 622 130 L 728 148 L 895 135" fill="none" stroke="#2b2621" stroke-width="2.6" opacity="0.74"/>
+                    <path d="M 495 138 L 516 218 L 494 278" fill="none" stroke="#2b2621" stroke-width="1.8" opacity="0.58"/>
+                    <!-- Desconchón lateral izquierdo -->
+                    <path d="M 0 540 L 42 565 L 55 720 L 38 890 L 65 980 L 0 1010 Z" fill="#4e463e" opacity="0.78"/>
+                    <line x1="24" y1="565" x2="24" y2="995" stroke="#261b14" stroke-width="4.5"/>
+                    <line x1="42" y1="620" x2="42" y2="960" stroke="#261b14" stroke-width="4"/>
+                </g>
+
+                <!-- =========================================================
+                     CAPA 4: MURAL PRINCIPAL "EVELIN" (CON BRILLO NEÓN EN NOCHE)
+                     ========================================================= -->
+                <g class="animate-mural-entrance neon-glow-layer">
+                    
+                    <!-- 4.1 HALOS DE AEROSOL DETRÁS DEL ARTE -->
+                    <g opacity="0.62" filter="url(#sprayGlowBlur)">
+                        <circle cx="245" cy="545" r="145" fill="#00acc1"/>
+                        <circle cx="675" cy="518" r="140" fill="#ff2a85"/>
+                        <circle cx="310" cy="432" r="125" fill="#43a047"/>
+                        <circle cx="465" cy="832" r="145" fill="#26a69a"/>
+                        <circle cx="250" cy="792" r="130" fill="#8e24aa"/>
+                    </g>
+
+                    <!-- 4.2 SÍMBOLOS LATERALES DE LA COMPOSICIÓN -->
+                    <!-- Búho Superior Derecho -->
+                    <g transform="translate(592, 268) scale(1.08)" filter="url(#paintOnWall)">
+                        <ellipse cx="32" cy="42" rx="22" ry="27" fill="#d7ccc8" stroke="#261c2c" stroke-width="3"/>
+                        <path d="M 14 20 L 20 31 L 32 26 L 44 31 L 50 20 L 42 16 L 32 21 L 22 16 Z" fill="#6a1b9a" stroke="#261c2c" stroke-width="2.5"/>
+                        <circle cx="23" cy="34" r="7.5" fill="#fffde7" stroke="#261c2c" stroke-width="2.5"/>
+                        <circle cx="41" cy="34" r="7.5" fill="#fffde7" stroke="#261c2c" stroke-width="2.5"/>
+                        <circle cx="23" cy="34" r="2.8" fill="#1a1a1a"/>
+                        <circle cx="41" cy="34" r="2.8" fill="#1a1a1a"/>
+                        <polygon points="29,40 35,40 32,47" fill="#ffca28" stroke="#261c2c" stroke-width="2"/>
+                        <path d="M 21 53 Q 26 58 31 53 M 33 53 Q 38 58 43 53 M 27 60 Q 32 65 37 60" fill="none" stroke="#4a148c" stroke-width="2.2" stroke-linecap="round"/>
+                        <path d="M 23 69 L 21 75 M 26 69 L 26 75 M 38 69 L 38 75 M 41 69 L 43 75" stroke="#261c2c" stroke-width="2.2" stroke-linecap="round"/>
+                    </g>
+
+                    <!-- Búho Inferior Izquierdo -->
+                    <g transform="translate(82, 995) scale(1.12)" filter="url(#paintOnWall)">
+                        <ellipse cx="32" cy="42" rx="22" ry="27" fill="#d7ccc8" stroke="#3e2723" stroke-width="3"/>
+                        <path d="M 14 20 L 20 31 L 32 26 L 44 31 L 50 20" fill="#5d4037" stroke="#3e2723" stroke-width="2.5"/>
+                        <circle cx="23" cy="34" r="7.5" fill="#fffde7" stroke="#3e2723" stroke-width="2.5"/>
+                        <circle cx="41" cy="34" r="7.5" fill="#fffde7" stroke="#3e2723" stroke-width="2.5"/>
+                        <circle cx="23" cy="34" r="2.8" fill="#1a1a1a"/>
+                        <circle cx="41" cy="34" r="2.8" fill="#1a1a1a"/>
+                        <polygon points="29,40 35,40 32,47" fill="#ffca28" stroke="#3e2723" stroke-width="2"/>
+                        <path d="M 21 53 Q 26 58 31 53 M 33 53 Q 38 58 43 53 M 27 60 Q 32 65 37 60" fill="none" stroke="#4e342e" stroke-width="2.2" stroke-linecap="round"/>
+                        <path d="M 23 69 L 21 75 M 26 69 L 26 75 M 38 69 L 38 75 M 41 69 L 43 75" stroke="#3e2723" stroke-width="2.2" stroke-linecap="round"/>
+                    </g>
+
+                    <!-- Rosa de los Vientos / Brújula Superior Derecha -->
+                    <g transform="translate(778, 345)" opacity="0.86" filter="url(#paintOnWall)">
+                        <circle cx="0" cy="0" r="36" fill="none" stroke="#26221f" stroke-width="1.8"/>
+                        <circle cx="0" cy="0" r="26" fill="none" stroke="#26221f" stroke-width="1.3" stroke-dasharray="3 3"/>
+                        <polygon points="0,-48 7,-7 48,0 7,7 0,48 -7,7 -48,0 -7,-7" fill="#26221f"/>
+                        <polygon points="0,-48 7,-7 0,0" fill="#00e5ff"/>
+                        <polygon points="0,48 -7,7 0,0" fill="#ff2a85"/>
+                        <text x="0" y="-54" text-anchor="middle" font-size="13" font-weight="bold" fill="#26221f">N</text>
+                        <text x="0" y="64" text-anchor="middle" font-size="13" font-weight="bold" fill="#26221f">S</text>
+                        <text x="58" y="5" text-anchor="middle" font-size="13" font-weight="bold" fill="#26221f">E</text>
+                        <text x="-58" y="5" text-anchor="middle" font-size="13" font-weight="bold" fill="#26221f">W</text>
+                    </g>
+
+                    <!-- Brújula Inferior Derecha -->
+                    <g transform="translate(628, 1072) scale(0.92)" opacity="0.82" filter="url(#paintOnWall)">
+                        <circle cx="0" cy="0" r="30" fill="none" stroke="#26221f" stroke-width="1.6"/>
+                        <polygon points="0,-44 6,-6 44,0 6,6 0,44 -6,6 -44,0 -6,-6" fill="#26221f"/>
+                        <polygon points="28,-28 4,0 0,-4" fill="#26221f"/>
+                        <polygon points="-28,28 -4,0 0,4" fill="#26221f"/>
+                    </g>
+
+                    <!-- Rama Botánica Verde Inferior Derecha -->
+                    <g transform="translate(785, 1145)" filter="url(#paintOnWall)" opacity="0.92">
+                        <path d="M 0 0 Q -4 -65 0 -135" fill="none" stroke="#1b5e4b" stroke-width="3.5" stroke-linecap="round"/>
+                        <path d="M 0 -25 C -24 -32, -38 -48, -42 -62 C -24 -58, -8 -42, 0 -25 Z" fill="none" stroke="#1b5e4b" stroke-width="3"/>
+                        <path d="M 0 -25 C 24 -32, 38 -48, 42 -62 C 24 -58, 8 -42, 0 -25 Z" fill="none" stroke="#1b5e4b" stroke-width="3"/>
+                        <path d="M 0 -62 C -28 -72, -44 -92, -48 -108 C -28 -102, -10 -84, 0 -62 Z" fill="none" stroke="#1b5e4b" stroke-width="3"/>
+                        <path d="M 0 -62 C 28 -72, 44 -92, 48 -108 C 28 -102, 10 -84, 0 -62 Z" fill="none" stroke="#1b5e4b" stroke-width="3"/>
+                        <path d="M 0 -98 C -20 -112, -28 -130, -26 -144 C -12 -134, -4 -116, 0 -98 Z" fill="none" stroke="#1b5e4b" stroke-width="3"/>
+                        <path d="M 0 -98 C 20 -112, 28 -130, 26 -144 C 12 -134, 4 -116, 0 -98 Z" fill="none" stroke="#1b5e4b" stroke-width="3"/>
+                        <path d="M 0 -115 C -10 -135, -8 -155, 0 -168 C 8 -155, 10 -135, 0 -115 Z" fill="none" stroke="#1b5e4b" stroke-width="3"/>
+                    </g>
+
+                    <!-- Corazones Callejeros y Brote -->
+                    <g transform="translate(72, 468) rotate(-18)" filter="url(#paintOnWall)">
+                        <path d="M 0 10 C -14 -8, -32 6, 0 32 C 32 6, 14 -8, 0 10 Z" fill="#f48fb1" stroke="#141414" stroke-width="3.8"/>
+                    </g>
+                    <g transform="translate(352, 345) rotate(-15)" filter="url(#paintOnWall)">
+                        <path d="M 0 8 C -11 -6, -25 5, 0 25 C 25 5, 11 -6, 0 8 Z" fill="#ff2a85" stroke="#141414" stroke-width="3.2"/>
+                    </g>
+                    <g transform="translate(782, 912) rotate(16)" filter="url(#paintOnWall)">
+                        <path d="M 0 9 C -13 -7, -29 5, 0 29 C 29 5, 13 -7, 0 9 Z" fill="#ec407a" stroke="#141414" stroke-width="3.5"/>
+                    </g>
+                    <g transform="translate(838, 495)" filter="url(#paintOnWall)">
+                        <path d="M 0 25 L 0 -12" stroke="#1b5e4b" stroke-width="3" stroke-linecap="round"/>
+                        <path d="M 0 4 C -14 -2, -20 -12, -18 -20 C -8 -16, -2 -6, 0 4 Z" fill="#43a047" stroke="#141414" stroke-width="2.2"/>
+                        <path d="M 0 0 C 14 -6, 20 -16, 18 -24 C 8 -20, 2 -10, 0 0 Z" fill="#43a047" stroke="#141414" stroke-width="2.2"/>
+                    </g>
+
+                    <!-- 4.3 CORONA REAL Y MARIPOSA -->
+                    <g class="crown-hover" filter="url(#paintOnWall)">
+                        <g transform="translate(448, 372) rotate(-4)">
+                            <path d="M -52 24 L -64 -26 L -28 2 L 0 -38 L 28 2 L 64 -26 L 52 24 Z" 
+                                  fill="url(#evelinSignatureGrad)" stroke="#141414" stroke-width="5.5" stroke-linejoin="round"/>
+                            <rect x="-52" y="29" width="104" height="11" rx="5" fill="#ffca28" stroke="#141414" stroke-width="4.2"/>
+                            <circle cx="-64" cy="-33" r="5.5" fill="#ff2a85" stroke="#141414" stroke-width="3"/>
+                            <circle cx="0" cy="-46" r="6.5" fill="#00e5ff" stroke="#141414" stroke-width="3"/>
+                            <circle cx="64" cy="-33" r="5.5" fill="#ffca28" stroke="#141414" stroke-width="3"/>
+                        </g>
+                    </g>
+
+                    <g class="butterfly-dance" filter="url(#paintOnWall)">
+                        <path d="M 0 0 C -14 -16, -28 -6, -16 6 C -24 14, -10 22, 0 8 Z" fill="#ff2a85" stroke="#141414" stroke-width="2.5"/>
+                        <path d="M 0 0 C 14 -16, 28 -6, 16 6 C 24 14, 10 22, 0 8 Z" fill="#f48fb1" stroke="#141414" stroke-width="2.5"/>
+                        <ellipse cx="0" cy="4" rx="2.2" ry="9" fill="#141414"/>
+                    </g>
+
+                    <!-- 4.4 GUIRNALDA BOTÁNICA CON TRAMAS GEOMÉTRICAS Y NERVADURAS -->
+                    <g class="botanical-sway" filter="url(#paintOnWall)">
+                        <!-- Tallos / Enredaderas -->
+                        <path d="M 165 495 C 125 385, 240 315, 345 365" fill="none" stroke="#141414" stroke-width="8" stroke-linecap="round"/>
+                        <path d="M 165 495 C 125 385, 240 315, 345 365" fill="none" stroke="#26a69a" stroke-width="4" stroke-linecap="round"/>
+
+                        <path d="M 735 495 C 775 385, 650 310, 520 385" fill="none" stroke="#141414" stroke-width="8" stroke-linecap="round"/>
+                        <path d="M 735 495 C 775 385, 650 310, 520 385" fill="none" stroke="#9c27b0" stroke-width="4" stroke-linecap="round"/>
+
+                        <path d="M 145 710 C 145 865, 285 965, 455 955" fill="none" stroke="#141414" stroke-width="8" stroke-linecap="round"/>
+                        <path d="M 145 710 C 145 865, 285 965, 455 955" fill="none" stroke="#43a047" stroke-width="4" stroke-linecap="round"/>
+
+                        <path d="M 755 710 C 755 865, 615 965, 455 955" fill="none" stroke="#141414" stroke-width="8" stroke-linecap="round"/>
+                        <path d="M 755 710 C 755 865, 615 965, 455 955" fill="none" stroke="#00e5ff" stroke-width="4" stroke-linecap="round"/>
+
+                        <!-- Tramas Geométricas Internas -->
+                        <path d="M 185 525 C 215 445, 315 435, 355 495 C 315 535, 225 555, 185 525 Z" fill="url(#geoChevron)" stroke="#141414" stroke-width="4.5"/>
+                        <path d="M 535 475 C 585 425, 675 445, 695 515 C 645 545, 565 535, 535 475 Z" fill="url(#geoChevron)" stroke="#141414" stroke-width="4.5"/>
+                        <path d="M 215 815 C 265 895, 375 915, 425 855 C 375 815, 275 795, 215 815 Z" fill="url(#geoStripesDots)" stroke="#141414" stroke-width="4.5"/>
+                        <path d="M 525 845 C 585 895, 685 875, 715 805 C 655 785, 575 805, 525 845 Z" fill="url(#geoChevron)" stroke="#141414" stroke-width="4.5"/>
+
+                        <!-- Hojas con nervaduras finas -->
+                        <g transform="translate(195, 415) rotate(-38)">
+                            <path d="M 0 0 C 30 -24, 72 -24, 98 0 C 72 24, 30 24, 0 0 Z" fill="url(#leafEmerald)" stroke="#141414" stroke-width="4.5"/>
+                            <path d="M 6 0 L 88 0 M 28 0 L 42 -11 M 50 0 L 64 11 M 66 0 L 76 -8" stroke="#141414" stroke-width="2.2" stroke-linecap="round"/>
+                        </g>
+                        <g transform="translate(248, 365) rotate(-72)">
+                            <path d="M 0 0 C 26 -20, 62 -20, 84 0 C 62 20, 26 20, 0 0 Z" fill="#66bb6a" stroke="#141414" stroke-width="4.5"/>
+                            <path d="M 5 0 L 74 0 M 30 0 L 42 -9 M 48 0 L 60 9" stroke="#141414" stroke-width="2" stroke-linecap="round"/>
+                        </g>
+                        <g transform="translate(152, 468) rotate(-14)">
+                            <path d="M 0 0 C 28 -22, 66 -22, 90 0 C 66 22, 28 22, 0 0 Z" fill="#8e24aa" stroke="#141414" stroke-width="4.5"/>
+                            <line x1="5" y1="0" x2="80" y2="0" stroke="#141414" stroke-width="2.2"/>
+                        </g>
+
+                        <g transform="translate(715, 425) rotate(215)">
+                            <path d="M 0 0 C 30 -24, 72 -24, 98 0 C 72 24, 30 24, 0 0 Z" fill="url(#leafVioletCyan)" stroke="#141414" stroke-width="4.5"/>
+                            <path d="M 6 0 L 88 0 M 30 0 L 44 -10 M 54 0 L 68 10" stroke="#141414" stroke-width="2.2" stroke-linecap="round"/>
+                        </g>
+                        <g transform="translate(658, 368) rotate(248)">
+                            <path d="M 0 0 C 26 -20, 62 -20, 84 0 C 62 20, 26 20, 0 0 Z" fill="#26a69a" stroke="#141414" stroke-width="4.5"/>
+                        </g>
+                        <g transform="translate(765, 625) rotate(168)">
+                            <path d="M 0 0 C 32 -24, 78 -24, 106 0 C 78 24, 32 24, 0 0 Z" fill="url(#leafEmerald)" stroke="#141414" stroke-width="4.5"/>
+                            <path d="M 6 0 L 94 0 M 32 0 L 48 -11 M 58 0 L 74 11" stroke="#141414" stroke-width="2.2" stroke-linecap="round"/>
+                        </g>
+
+                        <g transform="translate(135, 695) rotate(24)">
+                            <path d="M 0 0 C 32 -24, 76 -24, 104 0 C 76 24, 32 24, 0 0 Z" fill="url(#leafEmerald)" stroke="#141414" stroke-width="4.5"/>
+                            <line x1="6" y1="0" x2="92" y2="0" stroke="#141414" stroke-width="2.5"/>
+                        </g>
+                        <g transform="translate(335, 895) rotate(42)">
+                            <path d="M 0 0 C 34 -26, 82 -26, 112 0 C 82 26, 34 26, 0 0 Z" fill="#00acc1" stroke="#141414" stroke-width="4.5"/>
+                            <line x1="6" y1="0" x2="98" y2="0" stroke="#141414" stroke-width="2.5"/>
+                        </g>
+                        <g transform="translate(465, 995) rotate(-72)">
+                            <path d="M 0 0 C 38 -28, 92 -28, 124 0 C 92 28, 38 28, 0 0 Z" fill="url(#leafEmerald)" stroke="#141414" stroke-width="4.5"/>
+                            <path d="M 6 0 L 110 0 M 38 0 L 56 -12 M 66 0 L 84 12" stroke="#141414" stroke-width="2.2" stroke-linecap="round"/>
+                        </g>
+                        <g transform="translate(735, 765) rotate(148)">
+                            <path d="M 0 0 C 32 -24, 76 -24, 104 0 C 76 24, 32 24, 0 0 Z" fill="url(#leafVioletCyan)" stroke="#141414" stroke-width="4.5"/>
+                            <line x1="6" y1="0" x2="92" y2="0" stroke="#141414" stroke-width="2.5"/>
+                        </g>
+
+                        <!-- Flores Artísticas -->
+                        <g transform="translate(682, 535) scale(1.18)">
+                            <ellipse cx="0" cy="-24" rx="13" ry="20" fill="url(#flowerMagenta)" stroke="#141414" stroke-width="3.5"/>
+                            <ellipse cx="23" cy="-7" rx="13" ry="20" transform="rotate(72, 23, -7)" fill="url(#flowerMagenta)" stroke="#141414" stroke-width="3.5"/>
+                            <ellipse cx="14" cy="20" rx="13" ry="20" transform="rotate(144, 14, 20)" fill="url(#flowerMagenta)" stroke="#141414" stroke-width="3.5"/>
+                            <ellipse cx="-14" cy="20" rx="13" ry="20" transform="rotate(216, -14, 20)" fill="url(#flowerMagenta)" stroke="#141414" stroke-width="3.5"/>
+                            <ellipse cx="-23" cy="-7" rx="13" ry="20" transform="rotate(288, -23, -7)" fill="url(#flowerMagenta)" stroke="#141414" stroke-width="3.5"/>
+                            <circle cx="0" cy="0" r="11" fill="#ffca28" stroke="#141414" stroke-width="3.5"/>
+                        </g>
+
+                        <g transform="translate(572, 875) scale(1.25)">
+                            <ellipse cx="0" cy="-24" rx="13" ry="20" fill="url(#flowerMagenta)" stroke="#141414" stroke-width="3.5"/>
+                            <ellipse cx="23" cy="-7" rx="13" ry="20" transform="rotate(72, 23, -7)" fill="url(#flowerMagenta)" stroke="#141414" stroke-width="3.5"/>
+                            <ellipse cx="14" cy="20" rx="13" ry="20" transform="rotate(144, 14, 20)" fill="url(#flowerMagenta)" stroke="#141414" stroke-width="3.5"/>
+                            <ellipse cx="-14" cy="20" rx="13" ry="20" transform="rotate(216, -14, 20)" fill="url(#flowerMagenta)" stroke="#141414" stroke-width="3.5"/>
+                            <ellipse cx="-23" cy="-7" rx="13" ry="20" transform="rotate(288, -23, -7)" fill="url(#flowerMagenta)" stroke="#141414" stroke-width="3.5"/>
+                            <circle cx="0" cy="0" r="11" fill="#00e5ff" stroke="#141414" stroke-width="3.5"/>
+                        </g>
+
+                        <g transform="translate(215, 455) scale(1.05)">
+                            <ellipse cx="0" cy="-22" rx="12" ry="18" fill="#f48fb1" stroke="#141414" stroke-width="3.5"/>
+                            <ellipse cx="21" cy="-6" rx="12" ry="18" transform="rotate(72, 21, -6)" fill="#ec407a" stroke="#141414" stroke-width="3.5"/>
+                            <ellipse cx="13" cy="18" rx="12" ry="18" transform="rotate(144, 13, 18)" fill="#f48fb1" stroke="#141414" stroke-width="3.5"/>
+                            <ellipse cx="-13" cy="18" rx="12" ry="18" transform="rotate(216, -13, 18)" fill="#ec407a" stroke="#141414" stroke-width="3.5"/>
+                            <ellipse cx="-21" cy="-6" rx="12" ry="18" transform="rotate(288, -21, -6)" fill="#f48fb1" stroke="#141414" stroke-width="3.5"/>
+                            <circle cx="0" cy="0" r="10" fill="#ffca28" stroke="#141414" stroke-width="3.2"/>
+                        </g>
+
+                        <g transform="translate(222, 775) scale(1.1)">
+                            <ellipse cx="0" cy="-22" rx="12" ry="18" fill="#f8bbd0" stroke="#141414" stroke-width="3.5"/>
+                            <ellipse cx="21" cy="-6" rx="12" ry="18" transform="rotate(72, 21, -6)" fill="#f48fb1" stroke="#141414" stroke-width="3.5"/>
+                            <ellipse cx="13" cy="18" rx="12" ry="18" transform="rotate(144, 13, 18)" fill="#f8bbd0" stroke="#141414" stroke-width="3.5"/>
+                            <ellipse cx="-13" cy="18" rx="12" ry="18" transform="rotate(216, -13, 18)" fill="#f48fb1" stroke="#141414" stroke-width="3.5"/>
+                            <ellipse cx="-21" cy="-6" rx="12" ry="18" transform="rotate(288, -21, -6)" fill="#f8bbd0" stroke="#141414" stroke-width="3.5"/>
+                            <circle cx="0" cy="0" r="10" fill="#ffca28" stroke="#141414" stroke-width="3.2"/>
+                        </g>
+                    </g>
+
+                    <!-- 4.5 LAZO INFINITO ENTRELAZADO -->
+                    <g transform="translate(458, 768)" filter="url(#paintOnWall)">
+                        <path d="M -148 0 C -148 -52, -38 -52, 0 0 C 38 52, 148 52, 148 0 C 148 -52, 38 -52, 0 0 C -38 52, -148 52, -148 0 Z" 
+                              fill="none" stroke="#141414" stroke-width="26" stroke-linecap="round"/>
+                        <path d="M -148 0 C -148 -52, -38 -52, 0 0 C 38 52, 148 52, 148 0 C 148 -52, 38 -52, 0 0 C -38 52, -148 52, -148 0 Z" 
+                              fill="none" stroke="url(#infinityGrad)" stroke-width="14" stroke-linecap="round"/>
+                        <path d="M -125 -18 C -95 -36, -50 -30, -25 -12 M 25 12 C 55 32, 105 34, 130 14" 
+                              fill="none" stroke="#ffffff" stroke-width="3.8" stroke-linecap="round" opacity="0.8"/>
+                    </g>
+
+                    <!-- 4.6 NOMBRE PRINCIPAL "Evelin" CALIGRÁFICO -->
+                    <g filter="url(#paintOnWall)">
+                        <text x="454" y="684" text-anchor="middle" class="graffiti-calligraphy" font-size="242" font-weight="bold"
+                              fill="#121212" stroke="#121212" stroke-width="28" stroke-linejoin="round" letter-spacing="-3">
+                            Evelin
+                        </text>
+                        <text x="448" y="676" text-anchor="middle" class="graffiti-calligraphy" font-size="242" font-weight="bold"
+                              fill="none" stroke="#141414" stroke-width="22" stroke-linejoin="round" letter-spacing="-3">
+                            Evelin
+                        </text>
+                        <text x="448" y="676" text-anchor="middle" class="graffiti-calligraphy" font-size="242" font-weight="bold"
+                              fill="url(#evelinSignatureGrad)" letter-spacing="-3">
+                            Evelin
+                        </text>
+
+                        <!-- Reflejos blancos de aerosol en cada trazo -->
+                        <path d="M 192 558 Q 220 532 258 544" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" opacity="0.9"/>
+                        <path d="M 185 628 Q 182 652 204 668" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" opacity="0.85"/>
+                        <path d="M 318 612 Q 328 638 345 648" fill="none" stroke="#ffffff" stroke-width="3.8" stroke-linecap="round" opacity="0.82"/>
+                        <path d="M 412 612 Q 426 598 442 604" fill="none" stroke="#ffffff" stroke-width="3.8" stroke-linecap="round" opacity="0.84"/>
+                        <path d="M 498 545 Q 508 525 516 540" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" opacity="0.86"/>
+                        <path d="M 608 602 Q 625 588 642 604" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" opacity="0.84"/>
+                        <path d="M 712 632 Q 735 624 752 644" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" opacity="0.86"/>
+
+                        <!-- Corazón Dorado sobre la "i" -->
+                        <g class="heart-pulse" transform="translate(558, 526) rotate(10)">
+                            <path d="M 0 6 C -8 -5, -19 4, 0 19 C 19 4, 8 -5, 0 6 Z" fill="#ffca28" stroke="#141414" stroke-width="3.2"/>
+                        </g>
+                    </g>
+
+                    <!-- 4.7 GOTAS DE PINTURA ESCURRIENDO -->
+                    <g filter="url(#paintOnWall)">
+                        <path class="drip-slow-1" d="M 226 675 L 226 756 A 4.5 4.5 0 0 0 235 756 L 235 675 Z" fill="#f8fafc" stroke="#141414" stroke-width="2"/>
+                        <path class="drip-slow-2" d="M 244 678 L 244 726 A 3.5 3.5 0 0 0 251 726 L 251 678 Z" fill="#f8fafc" stroke="#141414" stroke-width="1.8"/>
+                        <path class="drip-slow-3" d="M 262 562 L 262 604 A 3.2 3.2 0 0 0 268.4 604 L 268.4 562 Z" fill="#f8fafc" stroke="#141414" stroke-width="1.6"/>
+                        <path class="drip-slow-2" d="M 484 676 L 484 748 A 4 4 0 0 0 492 748 L 492 676 Z" fill="#f8fafc" stroke="#141414" stroke-width="1.8"/>
+                        <path class="drip-slow-1" d="M 552 676 L 552 798 A 4.5 4.5 0 0 0 561 798 L 561 676 Z" fill="#f8fafc" stroke="#141414" stroke-width="2"/>
+                        <path class="drip-slow-3" d="M 594 795 L 594 848 A 3.8 3.8 0 0 0 601.6 848 L 601.6 795 Z" fill="#f8fafc" stroke="#141414" stroke-width="1.8"/>
+                        <path class="drip-slow-1" d="M 738 696 L 738 784 A 4.5 4.5 0 0 0 747 784 L 747 696 Z" fill="#f8fafc" stroke="#141414" stroke-width="2"/>
+                        <path class="drip-slow-2" d="M 756 692 L 756 742 A 3.2 3.2 0 0 0 762.4 742 L 762.4 692 Z" fill="#f8fafc" stroke="#141414" stroke-width="1.6"/>
+                        <path class="drip-slow-2" d="M 294 892 L 294 986 A 4 4 0 0 0 302 986 L 302 892 Z" fill="#141414"/>
+                        <path class="drip-slow-1" d="M 316 896 L 316 955 A 3 3 0 0 0 322 955 L 322 896 Z" fill="#141414"/>
+                        <path class="drip-slow-3" d="M 692 825 L 692 912 A 4 4 0 0 0 700 912 L 700 825 Z" fill="#00e5ff" opacity="0.78"/>
+                    </g>
+                </g>
+
+                <!-- Superposición de Iluminación (Día vs Noche Neón) -->
+                <rect id="lightingOverlay" x="0" y="0" width="900" height="1280" fill="url(#dayVignette)" pointer-events="none"/>
+
+                <!-- =========================================================
+                     CAPA 5: ACERA EN PERSPECTIVA CON HOJAS SECAS ANIMADAS
+                     ========================================================= -->
+                <g transform="translate(0, 1278)">
+                    <rect x="0" y="0" width="900" height="182" fill="#464543"/>
+                    <rect x="0" y="0" width="900" height="22" fill="#211e1b" opacity="0.88"/>
+                    
+                    <g stroke="#292826" stroke-width="3.5" opacity="0.85">
+                        <line x1="0" y1="54" x2="900" y2="54"/>
+                        <line x1="0" y1="116" x2="900" y2="116"/>
+                        <line x1="210" y1="12" x2="155" y2="182"/>
+                        <line x1="455" y1="12" x2="455" y2="182"/>
+                        <line x1="705" y1="12" x2="765" y2="182"/>
+                    </g>
+
+                    <!-- Hojas otoñales con brisa suave y piedritas -->
+                    <g opacity="0.94">
+                        <g class="leaf-breeze-1">
+                            <ellipse cx="145" cy="16" rx="14" ry="6" transform="rotate(-18, 145, 16)" fill="#a1662f"/>
+                            <ellipse cx="168" cy="20" rx="16" ry="7" transform="rotate(24, 168, 20)" fill="#c68642"/>
+                            <ellipse cx="192" cy="14" rx="15" ry="6" transform="rotate(-12, 192, 14)" fill="#8d5524"/>
+                            <ellipse cx="218" cy="19" rx="17" ry="7" transform="rotate(15, 218, 19)" fill="#d49a56"/>
+                        </g>
+                        <g class="leaf-breeze-2">
+                            <ellipse cx="242" cy="15" rx="13" ry="5" transform="rotate(-28, 242, 15)" fill="#7a491e"/>
+                            <ellipse cx="115" cy="22" rx="14" ry="6" transform="rotate(12, 115, 22)" fill="#b87a3d"/>
+                            <ellipse cx="185" cy="78" rx="13" ry="5" transform="rotate(28, 185, 78)" fill="#b87a3d"/>
+                            <ellipse cx="545" cy="84" rx="14" ry="5.5" transform="rotate(16, 545, 84)" fill="#c68642"/>
+                        </g>
+
+                        <!-- Piedritas y grava -->
+                        <circle cx="665" cy="16" r="5" fill="#7c756d"/>
+                        <circle cx="688" cy="19" r="7" fill="#635d56"/>
+                        <ellipse cx="735" cy="17" rx="11" ry="6" fill="#8c8379"/>
+                        <ellipse cx="815" cy="16" rx="16" ry="9" fill="#9c9183"/>
+                        <circle cx="775" cy="20" r="6" fill="#5c564f"/>
+                        <ellipse cx="325" cy="96" rx="11" ry="4.5" transform="rotate(-22, 325, 96)" fill="#9e622b"/>
+                        <ellipse cx="675" cy="132" rx="12" ry="5" transform="rotate(-35, 675, 132)" fill="#8d5524"/>
+                    </g>
+                </g>
+            </svg>
+
+            <!-- =========================================================
+                 CANVAS TRANSPARENTE PARA EL MODO SPRAY INTERACTIVO
+                 ========================================================= -->
+            <canvas id="sprayCanvas" class="absolute inset-0 w-full h-full pointer-events-none z-10"></canvas>
+
+            <!-- =========================================================
+                 CAPA DE PINS LUMINOSOS (MODO EXPLORAR DETALLES)
+                 ========================================================= -->
+            <div id="explorePinsLayer" class="absolute inset-0 z-20 hidden pointer-events-none">
+                <!-- Pin 1: La Corona -->
+                <button data-symbol="crown" style="top: 25.5%; left: 50%;" class="explore-pin pointer-events-auto absolute -translate-x-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-amber-400/90 text-stone-950 font-bold shadow-[0_0_20px_#ffca28] flex items-center justify-center cursor-pointer hover:scale-110 transition">
+                    <span class="pin-ring absolute inset-0 rounded-full bg-amber-300"></span>
+                    <span class="relative text-sm">👑</span>
+                </button>
+                <!-- Pin 2: El Corazón de la "i" -->
+                <button data-symbol="heart" style="top: 36%; left: 62%;" class="explore-pin pointer-events-auto absolute -translate-x-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-pink-500/90 text-white font-bold shadow-[0_0_20px_#ff2a85] flex items-center justify-center cursor-pointer hover:scale-110 transition">
+                    <span class="pin-ring absolute inset-0 rounded-full bg-pink-400"></span>
+                    <span class="relative text-sm">💛</span>
+                </button>
+                <!-- Pin 3: El Infinito -->
+                <button data-symbol="infinity" style="top: 52.5%; left: 51%;" class="explore-pin pointer-events-auto absolute -translate-x-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-cyan-400/90 text-stone-950 font-bold shadow-[0_0_20px_#00e5ff] flex items-center justify-center cursor-pointer hover:scale-110 transition">
+                    <span class="pin-ring absolute inset-0 rounded-full bg-cyan-300"></span>
+                    <span class="relative text-sm">♾️</span>
+                </button>
+                <!-- Pin 4: Los Búhos -->
+                <button data-symbol="owl" style="top: 21%; left: 69.5%;" class="explore-pin pointer-events-auto absolute -translate-x-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-purple-500/90 text-white font-bold shadow-[0_0_20px_#ab47bc] flex items-center justify-center cursor-pointer hover:scale-110 transition">
+                    <span class="pin-ring absolute inset-0 rounded-full bg-purple-400"></span>
+                    <span class="relative text-sm">🦉</span>
+                </button>
+                <!-- Pin 5: La Brújula -->
+                <button data-symbol="compass" style="top: 23.6%; left: 86.5%;" class="explore-pin pointer-events-auto absolute -translate-x-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-emerald-400/90 text-stone-950 font-bold shadow-[0_0_20px_#34d399] flex items-center justify-center cursor-pointer hover:scale-110 transition">
+                    <span class="pin-ring absolute inset-0 rounded-full bg-emerald-300"></span>
+                    <span class="relative text-sm">🧭</span>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- =========================================================
+         PANELES FLOTANTES CONTEXTUALES (SOBRE EL DOCK INFERIOR)
+         ========================================================= -->
+    
+    <!-- 1. Panel de Música Lo-Fi (CORREGIDO) -->
+    <div id="panelMusic" class="fixed bottom-[calc(4.75rem+env(safe-area-inset-bottom))] sm:bottom-[calc(5.5rem+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 z-40 w-[94%] max-w-md urban-panel rounded-3xl p-4 sm:p-5 hidden transition-all">
+        <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2.5">
+                <span class="text-lg">🎧</span>
+                <div>
+                    <h3 class="text-sm font-bold text-pink-300">Sintonía Urbana para Evelin</h3>
+                    <p id="trackNowPlaying" class="text-xs text-stone-400">Canción única: TeQuieroMucho</p>
+                </div>
+            </div>
+            <button data-close-panel class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-xs flex items-center justify-center cursor-pointer">✕</button>
+        </div>
+
+        <!-- Canción Única: TeQuieroMucho -->
+        <div class="mb-4">
+            <button data-track="0" class="track-btn w-full px-3.5 py-2.5 rounded-xl bg-pink-500/25 border border-pink-400/60 text-pink-200 text-xs font-semibold flex items-center justify-between transition cursor-pointer">
+                <span>🎵 TeQuieroMucho</span>
+                <span class="text-[11px] text-pink-300/90">Única canción</span>
+            </button>
+        </div>
+
+        <!-- Controles Play/Pause + Volumen -->
+        <div class="flex items-center justify-between gap-3 bg-black/35 rounded-2xl px-3.5 py-2.5 border border-white/10">
+            <audio id="customMusicAudio" preload="metadata" loop>
+                <source src="tequieromucho.mp3" type="audio/mpeg">
+                Tu navegador no soporta audio.
+            </audio>
+
+            <button id="musicPlayToggle" class="w-10 h-10 rounded-full bg-gradient-to-tr from-pink-500 via-purple-500 to-cyan-400 flex items-center justify-center text-white shadow-lg hover:scale-105 active:scale-95 transition cursor-pointer shrink-0">
+                <svg id="playSvg" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z"/>
+                </svg>
+                <svg id="pauseSvg" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                </svg>
+            </button>
+
+            <div class="flex-1 flex items-center gap-2">
+                <span class="text-xs text-stone-400">🔉</span>
+                <input id="volumeSlider" type="range" min="0" max="1" step="0.05" value="0.65" class="w-full accent-pink-500 h-1.5 bg-stone-700 rounded-lg cursor-pointer">
+            </div>
+
+            <!-- Visualizador en vivo -->
+            <div id="eqVisualizer" class="flex items-end gap-1 h-5 w-6 shrink-0">
+                <span class="bar-1 w-1 bg-pink-400 rounded-full h-1.5"></span>
+                <span class="bar-2 w-1 bg-purple-400 rounded-full h-3"></span>
+                <span class="bar-3 w-1 bg-cyan-400 rounded-full h-2.5"></span>
+                <span class="bar-4 w-1 bg-amber-300 rounded-full h-2"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Panel de Modo Spray Virtual -->
+    <div id="panelSpray" class="fixed bottom-[calc(4.75rem+env(safe-area-inset-bottom))] sm:bottom-[calc(5.5rem+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 z-40 w-[94%] max-w-md urban-panel rounded-3xl p-4 hidden transition-all">
+        <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2">
+                <span class="text-lg">🎨</span>
+                <div>
+                    <h3 class="text-sm font-bold text-cyan-300">Aerosol Virtual Activo</h3>
+                    <p class="text-[11px] text-stone-400">Desliza tu dedo o mouse sobre el muro para pintar</p>
+                </div>
+            </div>
+            <button data-close-panel class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-xs flex items-center justify-center cursor-pointer">✕</button>
+        </div>
+
+        <div class="flex items-center justify-between gap-2">
+            <!-- Selector de Colores del Mural -->
+            <div class="flex items-center gap-2.5">
+                <button data-spray-color="#ff2a85" class="spray-color-btn w-8 h-8 rounded-full bg-[#ff2a85] ring-2 ring-white scale-110 transition cursor-pointer" title="Fucsia Neón"></button>
+                <button data-spray-color="#00e5ff" class="spray-color-btn w-8 h-8 rounded-full bg-[#00e5ff] opacity-80 hover:opacity-100 transition cursor-pointer" title="Turquesa"></button>
+                <button data-spray-color="#ffca28" class="spray-color-btn w-8 h-8 rounded-full bg-[#ffca28] opacity-80 hover:opacity-100 transition cursor-pointer" title="Dorado Cálido"></button>
+                <button data-spray-color="#ffffff" class="spray-color-btn w-8 h-8 rounded-full bg-white opacity-80 hover:opacity-100 transition cursor-pointer" title="Blanco Brillo"></button>
+            </div>
+
+            <!-- Botón Estampar Corazón + Limpiar -->
+            <div class="flex items-center gap-2">
+                <button id="stampHeartBtn" class="px-3 py-1.5 rounded-xl bg-pink-500/20 hover:bg-pink-500/35 border border-pink-400/40 text-xs font-semibold text-pink-200 transition cursor-pointer">
+                    💖 Corazón
+                </button>
+                <button id="clearSprayBtn" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-medium text-stone-200 transition cursor-pointer">
+                    Limpiar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Tarjeta Flotante de Significado (Al tocar un Pin en Explorar Detalles) -->
+    <div id="symbolCard" class="fixed bottom-[calc(4.75rem+env(safe-area-inset-bottom))] sm:bottom-[calc(5.5rem+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 z-40 w-[94%] max-w-md urban-panel rounded-3xl p-4 sm:p-5 hidden transition-all border-amber-400/40">
+        <div class="flex items-start justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div id="symbolIconBox" class="w-11 h-11 rounded-2xl bg-white/10 flex items-center justify-center text-2xl shrink-0">👑</div>
+                <div>
+                    <h4 id="symbolTitle" class="text-sm sm:text-base font-bold text-amber-300">La Corona Real</h4>
+                    <p id="symbolDesc" class="text-xs sm:text-sm text-stone-200 leading-relaxed mt-1">
+                        Representa tu fuerza, autenticidad y la luz propia con la que destacas donde quiera que vayas.
+                    </p>
+                </div>
+            </div>
+            <button id="closeSymbolCard" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-xs flex items-center justify-center shrink-0 cursor-pointer">✕</button>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         DOCK INFERIOR COMPACTO GLASSMORPHISM (4 HERRAMIENTAS)
+         ========================================================= -->
+    <nav aria-label="Herramientas interactivas del mural" class="fixed bottom-[max(0.625rem,env(safe-area-inset-bottom))] sm:bottom-[max(1rem,env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 z-40 w-[95%] max-w-lg">
+        <div class="urban-dock rounded-full p-1 sm:p-1.5 grid grid-cols-4 gap-1">
+            <!-- 1. Música -->
+            <button id="dockMusicBtn" class="dock-item flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-2 py-1.5 sm:py-2 px-1.5 sm:px-2 rounded-full text-stone-200 hover:bg-white/10 transition cursor-pointer min-w-0">
+                <span class="text-sm sm:text-lg leading-none">🎵</span>
+                <span class="text-[10px] sm:text-xs font-semibold truncate">Música</span>
+            </button>
+
+            <!-- 2. Dedicatoria -->
+            <button id="dockDedicationBtn" class="dock-item flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-2 py-1.5 sm:py-2 px-1.5 sm:px-2 rounded-full text-stone-200 hover:bg-white/10 transition cursor-pointer min-w-0">
+                <span class="text-sm sm:text-lg leading-none">💌</span>
+                <span class="text-[10px] sm:text-xs font-semibold truncate">Dedicatoria</span>
+            </button>
+
+            <!-- 3. Modo Spray -->
+            <button id="dockSprayBtn" class="dock-item flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-2 py-1.5 sm:py-2 px-1.5 sm:px-2 rounded-full text-stone-200 hover:bg-white/10 transition cursor-pointer min-w-0">
+                <span class="text-sm sm:text-lg leading-none">🎨</span>
+                <span class="text-[10px] sm:text-xs font-semibold truncate">Modo Spray</span>
+            </button>
+
+            <!-- 4. Explorar Detalles -->
+            <button id="dockExploreBtn" class="dock-item flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-2 py-1.5 sm:py-2 px-1.5 sm:px-2 rounded-full text-stone-200 hover:bg-white/10 transition cursor-pointer min-w-0">
+                <span class="text-sm sm:text-lg leading-none">🔍</span>
+                <span class="text-[10px] sm:text-xs font-semibold truncate">Explorar</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- =========================================================
+         MODAL CARTA DEDICATORIA FIJA PARA EVELIN (NO EDITABLE)
+         ========================================================= -->
+    <div id="dedicationModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+        <div id="dedicationBox" class="urban-panel relative w-full max-w-md rounded-3xl p-6 sm:p-7 text-stone-100 border border-pink-400/35 transform scale-95 opacity-0 transition-all duration-300">
+            
+            <button id="closeDedicationModal" aria-label="Cerrar carta" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-stone-200 cursor-pointer">✕</button>
+
+            <div class="text-center mb-4">
+                <span class="inline-block text-2xl">👑</span>
+                <h2 class="graffiti-calligraphy text-5xl sm:text-6xl bg-gradient-to-r from-pink-400 via-cyan-300 to-amber-300 bg-clip-text text-transparent py-1">
+                    Para Evelin
+                </h2>
+                <div class="h-0.5 w-24 mx-auto bg-gradient-to-r from-transparent via-pink-400 to-transparent"></div>
+            </div>
+
+            <!-- Mensaje Romántico Fijo -->
+            <div id="letterReadView" class="space-y-3 text-sm sm:text-base text-stone-200 font-light leading-relaxed text-center">
+                <p id="letterParagraph1">
+                    Como este mural que florece lleno de vida, color y magia en medio de la ciudad, tu esencia ilumina cada momento y deja una huella imposible de olvidar.
+                </p>
+                <p id="letterParagraph2">
+                    Cada flor, la corona y el infinito dibujados junto a tu nombre celebran lo auténtica, fuerte y extraordinaria que eres.
+                </p>
+                <p id="letterSignature" class="font-semibold text-amber-300 pt-2">
+                    Con mucho cariño, para ti ✨🌸
+                </p>
+            </div>
+
+            <!-- Botón de Lluvia de Pétalos y Chispas -->
+            <div class="mt-6 flex items-center justify-center">
+                <button id="confettiBurstBtn" class="px-5 py-2.5 rounded-full bg-gradient-to-r from-pink-500 via-purple-600 to-cyan-500 text-white text-xs sm:text-sm font-semibold shadow-lg hover:scale-105 active:scale-95 transition cursor-pointer">
+                    ✨ Lluvia de Pétalos y Chispas
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         JAVASCRIPT INTEGRADO: MÚSICA, SPRAY, DÍA/NOCHE Y EXPLORACIÓN
+         ========================================================= -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // ---------------------------------------------------------
+            // 1. PARALLAX SUAVE EN ESCRITORIO
+            // ---------------------------------------------------------
+            const parallaxContainer = document.getElementById('parallaxContainer');
+            let sprayModeActive = false; // Declarada antes para evitar ReferenceError
+
+            window.addEventListener('mousemove', (e) => {
+                if (sprayModeActive) return;
+                const rx = (e.clientX / window.innerWidth - 0.5) * 8;
+                const ry = (e.clientY / window.innerHeight - 0.5) * 8;
+                parallaxContainer.style.transform = `translate3d(${-rx}px, ${-ry}px, 0)`;
+            });
+
+            // ---------------------------------------------------------
+            // 2. MODO DÍA / NOCHE DE CALLEJÓN CON NEÓN Y LUCIÉRNAGAS
+            // ---------------------------------------------------------
+            const appBody = document.getElementById('appBody');
+            const themeToggleBtn = document.getElementById('themeToggleBtn');
+            const themeIcon = document.getElementById('themeIcon');
+            const themeLabel = document.getElementById('themeLabel');
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+            const lightingOverlay = document.getElementById('lightingOverlay');
+
+            let isNightMode = false;
+
+            themeToggleBtn.addEventListener('click', () => {
+                isNightMode = !isNightMode;
+                if (isNightMode) {
+                    appBody.classList.add('night-mode-active');
+                    lightingOverlay.setAttribute('fill', 'url(#streetlampWarmGlow)');
+                    themeIcon.textContent = '☀️';
+                    themeLabel.textContent = 'Luz de Día';
+                    statusDot.className = 'w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_10px_#00e5ff]';
+                    statusText.textContent = 'Mural de Evelin • Noche Neón';
+                } else {
+                    appBody.classList.remove('night-mode-active');
+                    lightingOverlay.setAttribute('fill', 'url(#dayVignette)');
+                    themeIcon.textContent = '🌙';
+                    themeLabel.textContent = 'Noche Neón';
+                    statusDot.className = 'w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_8px_#fbbf24]';
+                    statusText.textContent = 'Mural de Evelin • Luz de Día';
+                }
+            });
+
+            // Partículas ambientales (Pétalos de día / Luciérnagas de noche)
+            setInterval(() => {
+                if (document.hidden) return;
+                const x = Math.random() * (window.innerWidth - 60) + 30;
+                const y = Math.random() * (window.innerHeight * 0.65) + (window.innerHeight * 0.15);
+                const p = document.createElement('span');
+                p.className = 'floating-particle text-base sm:text-lg';
+                p.style.left = `${x}px`;
+                p.style.top = `${y}px`;
+                p.style.zIndex = '15';
+                if (isNightMode) {
+                    p.textContent = Math.random() > 0.4 ? '✨' : '💫';
+                } else {
+                    p.textContent = Math.random() > 0.4 ? '🌸' : '🌿';
+                }
+                document.body.appendChild(p);
+                setTimeout(() => p.remove(), 4500);
+            }, 2200);
+
+            // ---------------------------------------------------------
+            // 3. GESTIÓN LIMPIA DEL DOCK INFERIOR Y PANELES
+            // ---------------------------------------------------------
+            const panelMusic = document.getElementById('panelMusic');
+            const panelSpray = document.getElementById('panelSpray');
+            const symbolCard = document.getElementById('symbolCard');
+            const explorePinsLayer = document.getElementById('explorePinsLayer');
+
+            const dockMusicBtn = document.getElementById('dockMusicBtn');
+            const dockDedicationBtn = document.getElementById('dockDedicationBtn');
+            const dockSprayBtn = document.getElementById('dockSprayBtn');
+            const dockExploreBtn = document.getElementById('dockExploreBtn');
+
+            let exploreModeActive = false;
+
+            function closeAllPanels() {
+                panelMusic.classList.add('hidden');
+                panelSpray.classList.add('hidden');
+                symbolCard.classList.add('hidden');
+                [dockMusicBtn, dockSprayBtn, dockExploreBtn].forEach(btn => {
+                    btn.classList.remove('bg-white/15', 'text-pink-300');
+                });
+            }
+
+            document.querySelectorAll('[data-close-panel]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    closeAllPanels();
+                    setSprayMode(false);
+                    setExploreMode(false);
+                });
+            });
+
+            // Botón 1: Música
+            dockMusicBtn.addEventListener('click', () => {
+                const isHidden = panelMusic.classList.contains('hidden');
+                closeAllPanels();
+                setSprayMode(false);
+                setExploreMode(false);
+                if (isHidden) {
+                    panelMusic.classList.remove('hidden');
+                    dockMusicBtn.classList.add('bg-white/15', 'text-pink-300');
+                }
+            });
+
+            // Botón 3: Modo Spray
+            const sprayCanvas = document.getElementById('sprayCanvas');
+            function setSprayMode(active) {
+                sprayModeActive = active;
+                if (active) {
+                    sprayCanvas.classList.remove('pointer-events-none');
+                    sprayCanvas.classList.add('cursor-crosshair');
+                    panelSpray.classList.remove('hidden');
+                    dockSprayBtn.classList.add('bg-white/15', 'text-cyan-300');
+                } else {
+                    sprayCanvas.classList.add('pointer-events-none');
+                    sprayCanvas.classList.remove('cursor-crosshair');
+                    panelSpray.classList.add('hidden');
+                    dockSprayBtn.classList.remove('bg-white/15', 'text-cyan-300');
+                }
+            }
+
+            dockSprayBtn.addEventListener('click', () => {
+                const next = !sprayModeActive;
+                closeAllPanels();
+                setExploreMode(false);
+                setSprayMode(next);
+            });
+
+            // Botón 4: Explorar Detalles
+            function setExploreMode(active) {
+                exploreModeActive = active;
+                if (active) {
+                    explorePinsLayer.classList.remove('hidden');
+                    dockExploreBtn.classList.add('bg-white/15', 'text-amber-300');
+                } else {
+                    explorePinsLayer.classList.add('hidden');
+                    symbolCard.classList.add('hidden');
+                    dockExploreBtn.classList.remove('bg-white/15', 'text-amber-300');
+                }
+            }
+
+            dockExploreBtn.addEventListener('click', () => {
+                const next = !exploreModeActive;
+                closeAllPanels();
+                setSprayMode(false);
+                setExploreMode(next);
+            });
+
+            // ---------------------------------------------------------
+            // 4. EXPLORAR DETALLES: SIGNIFICADO POÉTICO DE LOS SÍMBOLOS
+            // ---------------------------------------------------------
+            const symbolData = {
+                crown: {
+                    icon: '👑',
+                    title: 'La Corona sobre tu Nombre',
+                    desc: 'Simboliza tu luz propia, tu nobleza y esa fuerza natural con la que haces especial cada lugar que pisas, Evelin.'
+                },
+                heart: {
+                    icon: '💛',
+                    title: 'El Corazón Dorado de la "i"',
+                    desc: 'Un detalle cálido y brillante que recuerda que todo lo que haces con el corazón deja una marca eterna.'
+                },
+                infinity: {
+                    icon: '♾️',
+                    title: 'El Lazo del Infinito',
+                    desc: 'Representa los sueños sin límites, los recuerdos que perduran para siempre y la energía única que te rodea.'
+                },
+                owl: {
+                    icon: '🦉',
+                    title: 'Los Búhos Guardianes',
+                    desc: 'Inspiración, intuición y sabiduría callejera: dos pequeños guardianes acompañando tu camino día y noche.'
+                },
+                compass: {
+                    icon: '🧭',
+                    title: 'La Rosa de los Vientos',
+                    desc: 'Una brújula artística para que nunca pierdas el rumbo hacia tus metas más grandes y tus mejores aventuras.'
+                }
+            };
+
+            const symbolIconBox = document.getElementById('symbolIconBox');
+            const symbolTitle = document.getElementById('symbolTitle');
+            const symbolDesc = document.getElementById('symbolDesc');
+            const closeSymbolCard = document.getElementById('closeSymbolCard');
+
+            document.querySelectorAll('.explore-pin').forEach(pin => {
+                pin.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const key = pin.dataset.symbol;
+                    const info = symbolData[key];
+                    if (!info) return;
+                    symbolIconBox.textContent = info.icon;
+                    symbolTitle.textContent = info.title;
+                    symbolDesc.textContent = info.desc;
+                    symbolCard.classList.remove('hidden');
+                });
+            });
+
+            closeSymbolCard.addEventListener('click', () => {
+                symbolCard.classList.add('hidden');
+            });
+
+            // ---------------------------------------------------------
+            // 5. MODO SPRAY VIRTUAL EN CANVAS + SONIDO SINTETIZADO DE AEROSOL
+            // ---------------------------------------------------------
+            const ctx = sprayCanvas.getContext('2d');
+            let currentSprayColor = '#ff2a85';
+            let isSpraying = false;
+            let spraySoundNode = null;
+            let sprayGainNode = null;
+            let audioCtx = null;
+
+            function resizeSprayCanvas() {
+                const rect = parallaxContainer.getBoundingClientRect();
+                if (rect.width === 0 || rect.height === 0) return;
+                const dpr = Math.min(window.devicePixelRatio || 1, 3);
+                const targetW = Math.round(rect.width * dpr);
+                const targetH = Math.round(rect.height * dpr);
+                if (sprayCanvas.width === targetW && sprayCanvas.height === targetH) return;
+
+                const temp = document.createElement('canvas');
+                temp.width = sprayCanvas.width || targetW;
+                temp.height = sprayCanvas.height || targetH;
+                if (sprayCanvas.width > 0 && sprayCanvas.height > 0) {
+                    temp.getContext('2d').drawImage(sprayCanvas, 0, 0);
+                }
+
+                sprayCanvas.width = targetW;
+                sprayCanvas.height = targetH;
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                if (temp.width > 0 && temp.height > 0) {
+                    ctx.drawImage(temp, 0, 0, temp.width / dpr, temp.height / dpr);
+                }
+            }
+            if (typeof ResizeObserver !== 'undefined') {
+                const muralObserver = new ResizeObserver(() => resizeSprayCanvas());
+                muralObserver.observe(parallaxContainer);
+            }
+            window.addEventListener('resize', resizeSprayCanvas);
+            window.addEventListener('orientationchange', () => setTimeout(resizeSprayCanvas, 120));
+            requestAnimationFrame(resizeSprayCanvas);
+
+            function initAudio() {
+                if (!audioCtx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    audioCtx = new AudioCtx();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+            }
+
+            function startSprayAudio() {
+                try {
+                    initAudio();
+                    if (!audioCtx || spraySoundNode) return;
+                    const bufferSize = audioCtx.sampleRate * 1.5;
+                    const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                    const output = noiseBuffer.getChannelData(0);
+                    for (let i = 0; i < bufferSize; i++) {
+                        output[i] = Math.random() * 2 - 1;
+                    }
+                    spraySoundNode = audioCtx.createBufferSource();
+                    spraySoundNode.buffer = noiseBuffer;
+                    spraySoundNode.loop = true;
+
+                    const filter = audioCtx.createBiquadFilter();
+                    filter.type = 'bandpass';
+                    filter.frequency.value = 3400;
+                    filter.Q.value = 1.2;
+
+                    sprayGainNode = audioCtx.createGain();
+                    sprayGainNode.gain.value = 0.045;
+
+                    spraySoundNode.connect(filter);
+                    filter.connect(sprayGainNode);
+                    sprayGainNode.connect(audioCtx.destination);
+                    spraySoundNode.start();
+                } catch (err) {}
+            }
+
+            function stopSprayAudio() {
+                if (spraySoundNode) {
+                    try { spraySoundNode.stop(); } catch (e) {}
+                    spraySoundNode.disconnect();
+                    spraySoundNode = null;
+                }
+            }
+
+            function paintSprayAt(clientX, clientY) {
+                const rect = sprayCanvas.getBoundingClientRect();
+                const x = clientX - rect.left;
+                const y = clientY - rect.top;
+
+                ctx.fillStyle = currentSprayColor;
+                const radius = 20;
+                const density = 38;
+                for (let i = 0; i < density; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const dist = Math.random() * Math.random() * radius;
+                    const px = x + Math.cos(angle) * dist;
+                    const py = y + Math.sin(angle) * dist;
+                    ctx.globalAlpha = (1 - dist / radius) * 0.45;
+                    ctx.fillRect(px, py, 1.8, 1.8);
+                }
+                ctx.globalAlpha = 1;
+            }
+
+            sprayCanvas.addEventListener('pointerdown', (e) => {
+                if (!sprayModeActive) return;
+                isSpraying = true;
+                startSprayAudio();
+                paintSprayAt(e.clientX, e.clientY);
+            });
+
+            window.addEventListener('pointermove', (e) => {
+                if (!isSpraying || !sprayModeActive) return;
+                paintSprayAt(e.clientX, e.clientY);
+            });
+
+            window.addEventListener('pointerup', () => {
+                if (isSpraying) {
+                    isSpraying = false;
+                    stopSprayAudio();
+                }
+            });
+
+            document.querySelectorAll('.spray-color-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    currentSprayColor = btn.dataset.sprayColor;
+                    document.querySelectorAll('.spray-color-btn').forEach(b => {
+                        b.classList.remove('ring-2', 'ring-white', 'scale-110');
+                        b.classList.add('opacity-80');
+                    });
+                    btn.classList.add('ring-2', 'ring-white', 'scale-110');
+                    btn.classList.remove('opacity-80');
+                });
+            });
+
+            document.getElementById('stampHeartBtn').addEventListener('click', () => {
+                const dpr = Math.min(window.devicePixelRatio || 1, 3);
+                const logicalW = sprayCanvas.width / dpr;
+                const logicalH = sprayCanvas.height / dpr;
+                const cx = logicalW * (0.3 + Math.random() * 0.4);
+                const cy = logicalH * (0.35 + Math.random() * 0.35);
+                ctx.save();
+                ctx.translate(cx, cy);
+                ctx.fillStyle = currentSprayColor;
+                ctx.shadowColor = currentSprayColor;
+                ctx.shadowBlur = 12;
+                ctx.beginPath();
+                ctx.moveTo(0, 6);
+                ctx.bezierCurveTo(-14, -10, -32, 6, 0, 30);
+                ctx.bezierCurveTo(32, 6, 14, -10, 0, 6);
+                ctx.fill();
+                ctx.restore();
+            });
+
+            document.getElementById('clearSprayBtn').addEventListener('click', () => {
+                ctx.clearRect(0, 0, sprayCanvas.width, sprayCanvas.height);
+            });
+
+            // ---------------------------------------------------------
+            // 6. MODAL CARTA DEDICATORIA FIJA (NO EDITABLE)
+            // ---------------------------------------------------------
+            const dedicationModal = document.getElementById('dedicationModal');
+            const dedicationBox = document.getElementById('dedicationBox');
+            const closeDedicationModal = document.getElementById('closeDedicationModal');
+
+            function triggerPetalsAndSparks(count = 22) {
+                const symbols = ['🌸', '✨', '💖', '🦋', '💫', '🌿'];
+                for (let i = 0; i < count; i++) {
+                    setTimeout(() => {
+                        const el = document.createElement('span');
+                        el.className = 'floating-particle text-xl sm:text-2xl';
+                        el.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+                        el.style.left = `${Math.random() * (window.innerWidth - 60) + 30}px`;
+                        el.style.top = `${Math.random() * (window.innerHeight - 140) + 70}px`;
+                        el.style.zIndex = '60';
+                        document.body.appendChild(el);
+                        setTimeout(() => el.remove(), 4500);
+                    }, i * 65);
+                }
+            }
+
+            dockDedicationBtn.addEventListener('click', () => {
+                closeAllPanels();
+                setSprayMode(false);
+                setExploreMode(false);
+                dedicationModal.classList.remove('hidden');
+                dedicationModal.classList.add('flex');
+                requestAnimationFrame(() => {
+                    dedicationBox.classList.remove('scale-95', 'opacity-0');
+                    dedicationBox.classList.add('scale-100', 'opacity-100');
+                });
+                triggerPetalsAndSparks(14);
+            });
+
+            function closeLetter() {
+                dedicationBox.classList.remove('scale-100', 'opacity-100');
+                dedicationBox.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    dedicationModal.classList.add('hidden');
+                    dedicationModal.classList.remove('flex');
+                }, 250);
+            }
+
+            closeDedicationModal.addEventListener('click', closeLetter);
+            dedicationModal.addEventListener('click', (e) => {
+                if (e.target === dedicationModal) closeLetter();
+            });
+
+            document.getElementById('confettiBurstBtn').addEventListener('click', () => {
+                triggerPetalsAndSparks(28);
+            });
+
+            // ---------------------------------------------------------
+            // 7. REPRODUCTOR DE MÚSICA REAL (TeQuieroMucho.mp3) - CORREGIDO
+            // ---------------------------------------------------------
+            const musicPlayToggle = document.getElementById('musicPlayToggle');
+            const playSvg = document.getElementById('playSvg');
+            const pauseSvg = document.getElementById('pauseSvg');
+            const trackNowPlaying = document.getElementById('trackNowPlaying');
+            const volumeSlider = document.getElementById('volumeSlider');
+            const eqVisualizer = document.getElementById('eqVisualizer');
+            const customMusicAudio = document.getElementById('customMusicAudio');
+
+            customMusicAudio.volume = parseFloat(volumeSlider.value);
+
+            musicPlayToggle.addEventListener('click', () => {
+                if (customMusicAudio.paused) {
+                    customMusicAudio.play().then(() => {
+                        playSvg.classList.add('hidden');
+                        pauseSvg.classList.remove('hidden');
+                        eqVisualizer.classList.add('eq-playing');
+                        trackNowPlaying.textContent = 'Reproduciendo: TeQuieroMucho';
+                    }).catch(error => {
+                        console.error("Error al reproducir el audio:", error);
+                        alert("No se pudo reproducir el audio. Verifica que el archivo 'TeQuieroMucho.mp3' esté en la misma carpeta que este HTML.");
+                    });
+                } else {
+                    customMusicAudio.pause();
+                    playSvg.classList.remove('hidden');
+                    pauseSvg.classList.add('hidden');
+                    eqVisualizer.classList.remove('eq-playing');
+                    trackNowPlaying.textContent = 'Pausado • Toca Play para continuar';
+                }
+            });
+
+            volumeSlider.addEventListener('input', () => {
+                customMusicAudio.volume = parseFloat(volumeSlider.value);
+            });
+
+            customMusicAudio.addEventListener('ended', () => {
+                playSvg.classList.remove('hidden');
+                pauseSvg.classList.add('hidden');
+                eqVisualizer.classList.remove('eq-playing');
+                trackNowPlaying.textContent = 'Canción única: TeQuieroMucho';
+            });
+        });
+    </script>
+</body>
+</html>
